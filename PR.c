@@ -5,74 +5,36 @@
 #include <math.h>
 
 #define MIN 2
-#define NUM 10000000 // 10mln
+//#define NUM 10000000 // 10mln
+#define NUM 5000000 // 5mln
 //dla 10000 jest 1229 liczb pierwszych
 int isprime(int x) {
     for (int y = 2; y * y <= x; y++) {
         if (x % y == 0)
             return 0;
     }
-
     return 1;
 }
 
 int sitoEratostenesaSekwencyjnie(bool primes[]) {
     int primes_num = 0;
-    // 0 i 1 nie są liczbami pierwszymi
     primes[0] = primes[1] = false;
 
     for (int i = 2; i * i < NUM; ++i) {
-        // Jeśli i jest liczbą pierwszą, oznacz wszystkie jej wielokrotności jako liczby złożone
         if (primes[i]) {
             for (int j = i * i; j < NUM; j += i) {
                 primes[j] = false;
             }
         }
     }
-
     for (int i = 0; i < NUM; i++) {
         if (primes[i]) {
             primes_num++;
         }
     }
-
     return primes_num;
 }
 
-/*int sitoEratostenesaRownolegle(bool primes[]) {
-    int primes_num = 0;
-    // 0 i 1 nie są liczbami pierwszymi
-    primes[0] = primes[1] = false;
-    int NUM_root=sqrt(NUM);
-    #pragma omp parallel
-    {
-        //#pragma omp for
-        //omp_set_num_threads(2);
-        #pragma omp for schedule(dynamic,1)//reduction(+:primes_num)
-        for (int i = 2; i <= NUM_root; ++i) {
-            int isquare = i * i;  // Introduce a separate variable
-            // Jeśli i jest liczbą pierwszą, oznacz wszystkie jej wielokrotności jako liczby złożone
-            //#pragma omp critical
-            {
-                if (primes[i]) {
-                for (int j = isquare; j < NUM; j += i) {
-                    primes[j] = false;
-                }
-                }
-            }
-        }
-
-        #pragma omp for reduction(+:primes_num)
-        for (int i = 0; i < NUM; ++i) {
-            if (primes[i]) {
-                primes_num++;
-            }
-        }
-    }
-
-    return primes_num;
-}
-*/
 
 
 
@@ -595,6 +557,7 @@ int main(int argc, char *argv[]) {
     int sum = 0;
     double czas_start, czas_koniec;
 
+    omp_set_num_threads(2);
     // SEKWENCYJNIE
     czas_start = omp_get_wtime();
     for (int i = 2; i <= NUM; i++) {
@@ -620,7 +583,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < NUM; ++i) {
         primes[i] = true;
     }
-    
+    ///
     czas_start = omp_get_wtime();
     printf("Number of primes numbers with sieve: %d\n", sitoEratostenesaSekwencyjnie(primes));
     czas_koniec = omp_get_wtime();
